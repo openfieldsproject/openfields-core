@@ -14,7 +14,7 @@ OpenFields empowers small-scale and remote farms in under-resourced areas with a
 ## 🌍 Key Features
 
 - **Offline-first operation** — no reliance on internet access
-- **LoRa + Wi-Fi hybrid networking** (syncs over LoRa mesh during off-peak hours)
+- **LoRa + Wi-Fi hybrid networking** (inter-farm syncs over LoRa mesh during off-peak hours)
 - **Secure AES-encrypted communications** between nodes and gateway
 - **GPS-based time synchronization** using 1Hz pulse and UTC parsing
 - **Fixed-cost hardware** with open-source C firmware (NASA⁽¹⁰⁾ style)
@@ -52,10 +52,10 @@ OpenFields empowers small-scale and remote farms in under-resourced areas with a
 1. **Install Debian (or similar) on your NUC/local server**
 2. **Install dependencies**:
    - `mosquitto` (MQTT broker)
-   - `gpsd`, `ntpd`, or similar for GPS handling
+   - `rrdtool`, `mariadb`, for data storage handling
    - `apache2` (or preferred web server)
-3. **Set up local-only MQTT topics** (e.g. `time/epoch`, `sensor/weather/node0`)
-4. **Deploy post-processing scripts** (written in C or Python)
+3. **Set up local-only MQTT topics** (e.g. `raw/nmea/gps`, `system/datetime/epoch`)
+4. **Deploy post-processing scripts** (written in C)
 5. **Set up LoRa transmitter services** to respect regional ISM duty cycles
 6. **Secure system** using firewall and localhost MQTT access only
 
@@ -90,6 +90,8 @@ OpenFields is at an early stage and welcomes contributors — especially from:
 
 📬 Reach out or open an issue to get involved.
 
+🌍 Website: [https://www.openfieldsproject.org](https://www.openfieldsproject.org)  
+📧 Contact: openfieldsproject@proton.me
 ---
 
 ## 📡 Disclaimer

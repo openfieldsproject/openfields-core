@@ -90,8 +90,8 @@ OpenFields is at an early stage and welcomes contributors — especially from:
 
 📬 Reach out or open an issue to get involved.
 
-🌍 Website: [https://www.openfieldsproject.org](https://www.openfieldsproject.org)  
-📧 Contact: openfieldsproject@proton.me
+> 🌐 Website: [https://openfieldsproject.org](https://openfieldsproject.org)  
+> 📧 Contact: openfieldsproject@proton.me
 ---
 
 ## 📡 Disclaimer

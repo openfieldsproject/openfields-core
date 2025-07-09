@@ -10,6 +10,17 @@ OpenFields is designed for resilience and autonomy — enabling farms to monitor
 OpenFields empowers small-scale and remote farms in under-resourced areas with a reliable, low-cost alternative to commercial smart farming. Built with a focus on **local-first design**, it bridges the technology gap with robust, battery-efficient nodes, LoRa mesh networking, and community collaboration.
 
 ---
+## Ethics & Philosophy
+
+OpenFieldsProject is driven by a commitment to openness, equity, and sustainability. This is a non-profit, community-focused initiative built to serve, not sell.
+
+- **Non-profit values:** Fully open-source with no paywalls or commercial agendas.  
+- **User-centered design:** Created specifically for users in developing regions, designed to work offline on low-cost hardware.  
+- **Correctness over cosmetics:** Accuracy and reliability are paramount because real-world agricultural decisions depend on trustworthy data.  
+- **Sustainability:** Energy-efficient, low-bandwidth, and minimal dependencies ensure practical and responsible operation.  
+- **Community collaboration:** Contributions are welcome from everyone — developers, farmers, researchers — to build meaningful tools together.
+
+---
 
 ## 🌍 Key Features
 

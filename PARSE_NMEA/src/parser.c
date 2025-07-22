@@ -47,7 +47,7 @@ void parse_gpgga(application_data * app_data)
     if (strstr(nmea.fields[10],"F") != NULL)
       altitude /= 3.3;
     ADMQ++;
-    strncpy (app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/altitude",MAXBUF-1);
+    strncpy (app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/altitude",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,MAXBUF-1,"%.1lf",altitude);
     app_data->parsed_data[ADMQ].pub_persist = 0;
   }
@@ -55,7 +55,7 @@ void parse_gpgga(application_data * app_data)
   if (strlen(nmea.fields[6]) > 0)
   {
     ADMQ++;
-    strncpy (app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/fix_quality",MAXBUF-1);
+    strncpy (app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/fix_quality",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,MAXBUF-1,"%d",atoi(nmea.fields[6]));
     app_data->parsed_data[ADMQ].pub_persist = 0;
   }
@@ -63,7 +63,7 @@ void parse_gpgga(application_data * app_data)
   if (strlen(nmea.fields[7]) > 0)
   {
     ADMQ++;
-    strncpy (app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/number_of_satellites",MAXBUF-1);
+    strncpy (app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/number_of_satellites",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,MAXBUF-1,"%d",atoi(nmea.fields[7]));
     app_data->parsed_data[ADMQ].pub_persist = 0;
   }
@@ -105,22 +105,22 @@ void parse_gprmc(application_data * app_data)
     utchours =    utcfulltime / 10000;
 
     ADMQ++;
-    strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/utc_hour",MAXBUF-1);
+    strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/utc_hour",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%d",utchours);
     app_data->parsed_data[ADMQ].pub_persist = 0;
 
     ADMQ++;
-    strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/utc_minutes",MAXBUF-1);
+    strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/utc_minutes",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%d",utcminutes);
     app_data->parsed_data[ADMQ].pub_persist = 0;
 
     ADMQ++;
-    strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/utc_seconds",MAXBUF-1);
+    strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/utc_seconds",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%d",utcseconds);
     app_data->parsed_data[ADMQ].pub_persist = 0;
 
     ADMQ++;
-    strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/utc_time",MAXBUF-1);
+    strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/utc_time",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%02d:%02d:%02d",utchours,utcminutes,utcseconds);
     app_data->parsed_data[ADMQ].pub_persist = 0;
   }
@@ -140,7 +140,7 @@ void parse_gprmc(application_data * app_data)
     if (abs((int) latitude) < 200)
     {
       ADMQ++;
-      strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/latitude",MAXBUF-1);
+      strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/latitude",MAXBUF-1);
       snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%lf",latitude);
       app_data->parsed_data[ADMQ].pub_persist = 0;
     }
@@ -161,7 +161,7 @@ void parse_gprmc(application_data * app_data)
     if (abs((int) longitude) < 200)
     {
       ADMQ++;
-      strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/longitude",MAXBUF-1);
+      strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/longitude",MAXBUF-1);
       snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%lf",longitude);
       app_data->parsed_data[ADMQ].pub_persist = 0;
     }
@@ -172,7 +172,7 @@ void parse_gprmc(application_data * app_data)
   {
     double sog = (atof(nmea.fields[7])) * 1850 / 3600;
     ADMQ++;
-    strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/sog",MAXBUF-1);
+    strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/sog",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%lf",sog);
     app_data->parsed_data[ADMQ].pub_persist = 0;
   }
@@ -182,7 +182,7 @@ void parse_gprmc(application_data * app_data)
   {
     double cog = atof(nmea.fields[8]);
     ADMQ++;
-    strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/cog",MAXBUF-1);
+    strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/cog",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%lf",cog);
     app_data->parsed_data[ADMQ].pub_persist = 0;
   }
@@ -197,22 +197,22 @@ void parse_gprmc(application_data * app_data)
     utcday = utcfulldate / 10000;
 
     ADMQ++;
-    strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/utc_day",MAXBUF-1);
+    strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/utc_day",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%d",utcday);
     app_data->parsed_data[ADMQ].pub_persist = 0;
 
     ADMQ++;
-    strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/utc_month",MAXBUF-1);
+    strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/utc_month",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%d",utcmonth);
     app_data->parsed_data[ADMQ].pub_persist = 0;
 
     ADMQ++;
-    strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/utc_year",MAXBUF-1);
+    strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/utc_year",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%d",utcyear);
     app_data->parsed_data[ADMQ].pub_persist = 0;
 
     ADMQ++;
-    strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/utc_date",MAXBUF-1);
+    strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/utc_date",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%02d/%02d/%02d",utcday,utcmonth,utcyear);
     app_data->parsed_data[ADMQ].pub_persist = 0;
 
@@ -224,7 +224,7 @@ void parse_gprmc(application_data * app_data)
   {
     time_t epoch = utc_to_epoch((int) utcyear, (int) utcmonth, (int) utcday, (int) utchours, (int) utcminutes, (int) utcseconds);
     ADMQ++;
-    strncpy(app_data->parsed_data[ADMQ].pub_topic,"SYSTEM/GPS/epoch",MAXBUF-1);
+    strncpy(app_data->parsed_data[ADMQ].pub_topic,"DATA/GPS/epoch",MAXBUF-1);
     snprintf(app_data->parsed_data[ADMQ].pub_payload,15,"%ld",epoch);
     app_data->parsed_data[ADMQ].pub_persist = 0;
   }

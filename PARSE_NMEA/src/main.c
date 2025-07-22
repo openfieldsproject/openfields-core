@@ -6,7 +6,7 @@
  * Dependencies: mqtt_client.h, math.h, transform_logic.h
  * Notes:
  *   - Subscribes to: RAW/NMEA/#
- *   - Publishes to: SYSTEM/GPS/various_topics
+ *   - Publishes to: DATA/GPS/various_topics
  *   - Stateless preferred (uses current values only)
  *   - Minimal dependencies, fixed memory model
  *   - Common use cases: dew point, heat index, pressure trend, evapotranspiration

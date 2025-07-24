@@ -1,12 +1,12 @@
 /*
  * Module Name: INPUT_LOCALHOST
- * Description: Collects data localhost(e.g.server , epoch, localtime, cpu storage and memory stats).
+ * Description: Collects the server's RTC details
  * Author: Gavin Behrens
  * License: GPLv3
  * Dependencies: mqtt_client.h, time.h
  * Notes:
  *   - Publishes to: /DATA/HOST/...
- *   - No AES128-CBC necessary - input module but source is localhost only
+ *   - No AES128-CBC necessary - input module but source is localhost RTC only
  */
 
 
@@ -34,6 +34,7 @@ void handle_sigint(int sig)
 }
 
 
+
 int main()
 {
     struct mosquitto *mosq = NULL;
@@ -42,8 +43,9 @@ int main()
     struct tm *local_time_info;
     char topic[MAXCHAR];
     char payload[MAXCHAR];
+    uint8_t switchdate = 1 ;  //tell when to republish date
 
-    strncpy(topic, "HOST/SERVER/epoch", MAXCHAR - 1);
+    strncpy(topic, "HOSTS/SERVER/epoch", MAXCHAR - 1);
     topic[MAXCHAR - 1] = '\0';
 
     signal(SIGINT,handle_sigint);
@@ -74,62 +76,76 @@ int main()
       local_time_info = localtime(&epoch_time);
 
       //publish rtc epoch
-      strncpy(topic,"HOST/SERVER/rtc_epoch",MAXCHAR-1);
+      strncpy(topic,"HOSTS/SERVER/rtc_epoch",MAXCHAR-1);
       snprintf(payload,MAXCHAR-1,"%ld",epoch_time);
       rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
       if (rc != MOSQ_ERR_SUCCESS)
         fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
+      if (switchdate == 1) //if next local day the republish day/date data with persistance
+      {
+        //publish rtc local date
+        strncpy(topic,"HOSTS/SERVER/local_date",MAXCHAR-1);
+        strftime(payload, sizeof(payload), "%d/%m/%Y", local_time_info);
+        rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, true);
+        if (rc != MOSQ_ERR_SUCCESS)
+          fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
-      //publish rtc local date
-      strncpy(topic,"HOST/SERVER/local_date",MAXCHAR-1);
-      strftime(payload, sizeof(payload), "%d/%m/%Y", local_time_info);
-      rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
-      if (rc != MOSQ_ERR_SUCCESS)
-        fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
+        //publish rtc day of the week
+        strncpy(topic,"HOSTS/SERVER/local_dotw",MAXCHAR-1);
+        strftime(payload, sizeof(payload), "%a", local_time_info);
+        rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, true);
+        if (rc != MOSQ_ERR_SUCCESS)
+          fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
-      //publish rtc day of the week
-      strncpy(topic,"HOST/SERVER/local_dotw",MAXCHAR-1);
-      strftime(payload, sizeof(payload), "%a", local_time_info);
-      rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
-      if (rc != MOSQ_ERR_SUCCESS)
-        fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
+        //publish rtc day of the year
+        strncpy(topic,"HOSTS/SERVER/local_doty",MAXCHAR-1);
+        strftime(payload, sizeof(payload), "%j", local_time_info);
+        rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, true);
+        if (rc != MOSQ_ERR_SUCCESS)
+          fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
-      //publish rtc day of the year
-      strncpy(topic,"HOST/SERVER/local_doty",MAXCHAR-1);
-      strftime(payload, sizeof(payload), "%j", local_time_info);
-      rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
-      if (rc != MOSQ_ERR_SUCCESS)
-        fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
+        //publish rtc week of the year
+        strncpy(topic,"HOSTS/SERVER/local_woty",MAXCHAR-1);
+        strftime(payload, sizeof(payload), "%U", local_time_info);
+        rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, true);
+        if (rc != MOSQ_ERR_SUCCESS)
+          fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
-      //publish rtc week of the year
-      strncpy(topic,"HOST/SERVER/local_woty",MAXCHAR-1);
-      strftime(payload, sizeof(payload), "%U", local_time_info);
-      rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
-      if (rc != MOSQ_ERR_SUCCESS)
-        fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
+        //publish rtc day of the week
+        strncpy(topic,"HOSTS/SERVER/local_timezone",MAXCHAR-1);
+        strftime(payload, sizeof(payload), "%Z", local_time_info);
+        rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, true);
+        if (rc != MOSQ_ERR_SUCCESS)
+          fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
-      //publish rtc day of the week
-      strncpy(topic,"HOST/SERVER/local_timezone",MAXCHAR-1);
-      strftime(payload, sizeof(payload), "%Z", local_time_info);
-      rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
-      if (rc != MOSQ_ERR_SUCCESS)
-        fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
+        switchdate = 0; //only do once
+
+      }
 
       //publish rtc local 12hr time
-      strncpy(topic,"HOST/SERVER/local_time_12",MAXCHAR-1);
+      strncpy(topic,"HOSTS/SERVER/local_time_12",MAXCHAR-1);
       strftime(payload, sizeof(payload), "%r", local_time_info);
       rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
       if (rc != MOSQ_ERR_SUCCESS)
         fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
       //publish rtc local 24hr time
-      strncpy(topic,"HOST/SERVER/local_time_24",MAXCHAR-1);
+      strncpy(topic,"HOSTS/SERVER/local_time_24",MAXCHAR-1);
       strftime(payload, sizeof(payload), "%X", local_time_info);
       rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
       if (rc != MOSQ_ERR_SUCCESS)
         fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
+      //publish rtc local 24hr time
+      strncpy(topic,"HOSTS/SERVER/local_time_24",MAXCHAR-1);
+      strftime(payload, sizeof(payload), "%X", local_time_info);
+      rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
+      if (rc != MOSQ_ERR_SUCCESS)
+        fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
+
+      if (strncmp(payload,"00:00:00",sizeof(payload)) == 0) // Once midnight then we'll switch the date/day data
+        switchdate = 1;
 
     }
 
@@ -139,39 +155,3 @@ int main()
 
     return EXIT_SUCCESS;
 }
-
-
-
-
-
-/*
-#include <stdio.h>
-#include <time.h>
-
-int main() {
-
-    time_t epoch_time = time(NULL);
-
-    struct tm *local_time_info = localtime(&epoch_time);
-
-    char time_string[80];
-
-    // Format the local time into a human-readable string
-    // %a: Abbreviated weekday name (e.g., "Wed")
-    // %Y: Year with century (e.g., "2023")
-    // %m: Month as a decimal number (01-12)
-    // %d: Day of the month as a decimal number (01-31)
-    // %H: Hour in 24-hour format (00-23)
-    // %M: Minute as a decimal number (00-59)
-    // %S: Second as a decimal number (00-59)
-    // %Z: Time zone name or abbreviation (e.g., "EST", "CST")
-
-    strftime(time_string, sizeof(time_string), "%a %Y-%m-%d %H:%M:%S %Z", local_time_info);
-
-    // Print the formatted local time and date
-    printf("Epoch timestamp: %ld\n", epoch_time);
-    printf("Local time and date: %s\n", time_string);
-
-    return 0;
-}
-*/

@@ -45,7 +45,7 @@ int main()
     char payload[MAXCHAR];
     uint8_t switchdate = 1 ;  //tell when to republish date
 
-    strncpy(topic, "HOSTS/SERVER/epoch", MAXCHAR - 1);
+    strncpy(topic, "DATA/DATE_TIME/epoch", MAXCHAR - 1);
     topic[MAXCHAR - 1] = '\0';
 
     signal(SIGINT,handle_sigint);
@@ -76,7 +76,7 @@ int main()
       local_time_info = localtime(&epoch_time);
 
       //publish rtc epoch
-      strncpy(topic,"HOSTS/SERVER/rtc_epoch",MAXCHAR-1);
+      strncpy(topic,"DATA/DATE_TIME/rtc_epoch",MAXCHAR-1);
       snprintf(payload,MAXCHAR-1,"%ld",epoch_time);
       rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
       if (rc != MOSQ_ERR_SUCCESS)
@@ -85,35 +85,35 @@ int main()
       if (switchdate == 1) //if next local day the republish day/date data with persistance
       {
         //publish rtc local date
-        strncpy(topic,"HOSTS/SERVER/local_date",MAXCHAR-1);
+        strncpy(topic,"DATA/DATE_TIME/local_date",MAXCHAR-1);
         strftime(payload, sizeof(payload), "%d/%m/%Y", local_time_info);
         rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, true);
         if (rc != MOSQ_ERR_SUCCESS)
           fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
         //publish rtc day of the week
-        strncpy(topic,"HOSTS/SERVER/local_dotw",MAXCHAR-1);
+        strncpy(topic,"DATA/DATE_TIME/local_dotw",MAXCHAR-1);
         strftime(payload, sizeof(payload), "%a", local_time_info);
         rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, true);
         if (rc != MOSQ_ERR_SUCCESS)
           fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
         //publish rtc day of the year
-        strncpy(topic,"HOSTS/SERVER/local_doty",MAXCHAR-1);
+        strncpy(topic,"DATA/DATE_TIME/local_doty",MAXCHAR-1);
         strftime(payload, sizeof(payload), "%j", local_time_info);
         rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, true);
         if (rc != MOSQ_ERR_SUCCESS)
           fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
         //publish rtc week of the year
-        strncpy(topic,"HOSTS/SERVER/local_woty",MAXCHAR-1);
+        strncpy(topic,"DATA/DATE_TIME/local_woty",MAXCHAR-1);
         strftime(payload, sizeof(payload), "%U", local_time_info);
         rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, true);
         if (rc != MOSQ_ERR_SUCCESS)
           fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
         //publish rtc day of the week
-        strncpy(topic,"HOSTS/SERVER/local_timezone",MAXCHAR-1);
+        strncpy(topic,"DATA/DATE_TIME/local_timezone",MAXCHAR-1);
         strftime(payload, sizeof(payload), "%Z", local_time_info);
         rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, true);
         if (rc != MOSQ_ERR_SUCCESS)
@@ -124,21 +124,21 @@ int main()
       }
 
       //publish rtc local 12hr time
-      strncpy(topic,"HOSTS/SERVER/local_time_12",MAXCHAR-1);
+      strncpy(topic,"DATA/DATE_TIME/local_time_12",MAXCHAR-1);
       strftime(payload, sizeof(payload), "%r", local_time_info);
       rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
       if (rc != MOSQ_ERR_SUCCESS)
         fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
       //publish rtc local 24hr time
-      strncpy(topic,"HOSTS/SERVER/local_time_24",MAXCHAR-1);
+      strncpy(topic,"DATA/DATE_TIME/local_time_24",MAXCHAR-1);
       strftime(payload, sizeof(payload), "%X", local_time_info);
       rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
       if (rc != MOSQ_ERR_SUCCESS)
         fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
       //publish rtc local 24hr time
-      strncpy(topic,"HOSTS/SERVER/local_time_24",MAXCHAR-1);
+      strncpy(topic,"DATA/DATE_TIME/local_time_24",MAXCHAR-1);
       strftime(payload, sizeof(payload), "%X", local_time_info);
       rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, false);
       if (rc != MOSQ_ERR_SUCCESS)

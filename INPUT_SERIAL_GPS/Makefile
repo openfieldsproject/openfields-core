@@ -19,7 +19,7 @@ BUILD_SUBDIR = $(BUILD_DIR)/$(BUILD_MODE)
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_SUBDIR)/%.o, $(SRCS))
 
 # Output executable path inside build subdir
-TARGET = serialgpstomqtt
+TARGET = input_serial_gps
 
 # Flags
 CFLAGS_RELEASE = -lmosquitto -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wconversion -Wsign-conversion -Werror -I$(INCLUDE_DIR) -O2

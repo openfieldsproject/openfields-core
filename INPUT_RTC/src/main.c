@@ -5,7 +5,7 @@
  * License: GPLv3
  * Dependencies: mqtt_client.h, time.h
  * Notes:
- *   - Publishes to: /DATA/HOST/...
+ *   - Publishes to: /DATA/DATE_TIME/...
  *   - No AES128-CBC necessary - input module but source is localhost RTC only
  */
 

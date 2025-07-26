@@ -1,5 +1,5 @@
 /*
- * Module Name: INPUT_LOCALHOST
+ * Module Name: INPUT_RTC
  * Description: Collects the server's RTC details
  * Author: Gavin Behrens
  * License: GPLv3
@@ -155,3 +155,4 @@ int main()
 
     return EXIT_SUCCESS;
 }
+

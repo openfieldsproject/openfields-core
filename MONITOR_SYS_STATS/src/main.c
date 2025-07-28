@@ -39,7 +39,7 @@ int main()
   signal(SIGINT,handle_sigint);
 
   mosquitto_lib_init();
-  mosq = mosquitto_new("client-pub", true, NULL);
+  mosq = mosquitto_new("sysinfo", true, NULL);
   if (!mosq) {
       fprintf(stderr, "Failed to create Mosquitto instance\n");
       mosquitto_lib_cleanup();

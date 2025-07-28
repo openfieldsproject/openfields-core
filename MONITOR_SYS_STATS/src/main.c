@@ -17,7 +17,7 @@
 #include <string.h>
 #include "sys_stat.h"
 
-#define HOST     "192.168.122.254"
+#define HOST     "127.0.0.1"
 #define PORT     1883
 #define KEEPALIVE 60
 #define QOS      1

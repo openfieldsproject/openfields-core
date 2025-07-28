@@ -19,7 +19,7 @@ BUILD_SUBDIR = $(BUILD_DIR)/$(BUILD_MODE)
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_SUBDIR)/%.o, $(SRCS))
 
 # Output executable path inside build subdir
-TARGET = input_localhost
+TARGET = monitor_sys_stats
 
 # Flags
 CFLAGS_RELEASE = -lmosquitto -lm -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wconversion -Wsign-conversion -Werror -I$(INCLUDE_DIR) -O2

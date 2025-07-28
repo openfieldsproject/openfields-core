@@ -68,13 +68,10 @@ void get_wifi_signal(sys_info * data)
   {
     char signal[16];
     if (fgets(signal, sizeof(signal), fp) != NULL)
-    {  //printf("Wi-Fi Signal (%s): %s dBm\n", IFACE, strtok(signal, "."));
       snprintf(data->wifi_sig_strength, MAXCHAR-1, "%s", strtok(signal, "."));
 
-      data->ok_pub |= 1<<2;
-    }
     else printf("Wi-Fi Signal (%s): Not found\n", IFACE);
-
+    data->ok_pub |= 1<<2;
     pclose(fp);
   }
   else

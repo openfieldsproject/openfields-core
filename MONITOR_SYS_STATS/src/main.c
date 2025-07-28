@@ -34,7 +34,7 @@ int main()
 {
   struct mosquitto *mosq = NULL;
   int rc;
-  sys_info module_data;
+  sys_info module_data = {0};
 
   signal(SIGINT,handle_sigint);
 

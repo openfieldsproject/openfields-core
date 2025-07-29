@@ -33,6 +33,20 @@ void handle_sigint(int sig)
   running = 0;
 }
 
+// Returns the offset in **seconds** from UTC (e.g., +3600 for UTC+1)
+int get_utc_offset_seconds()
+{
+  time_t now = time(NULL);
+
+  struct tm utc_tm = *gmtime(&now);     // UTC time
+  struct tm local_tm = *localtime(&now); // Local time
+
+  // Convert both to time_t again
+  time_t utc_seconds   = mktime(&utc_tm);
+  time_t local_seconds = mktime(&local_tm);
+
+  return (int)difftime(local_seconds, utc_seconds);
+}
 
 
 int main()
@@ -44,6 +58,7 @@ int main()
     char topic[MAXCHAR];
     char payload[MAXCHAR];
     uint8_t switchdate = 1 ;  //tell when to republish date
+    float tz_offset = (float)get_utc_offset_seconds() / 3600.0f;
 
     strncpy(topic, "DATA/DATE_TIME/rtc_epoch", MAXCHAR - 1);
     topic[MAXCHAR - 1] = '\0';
@@ -91,6 +106,13 @@ int main()
         if (rc != MOSQ_ERR_SUCCESS)
           fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
+        //publish rtc tz_offset
+        strncpy(topic,"DATA/DATE_TIME/rtc_tz_offset",MAXCHAR-1);
+        snprintf(payload, sizeof(payload), "%.2f", tz_offset);
+        rc = mosquitto_publish(mosq, NULL, topic, (int) strlen(payload), payload, QOS, true);
+        if (rc != MOSQ_ERR_SUCCESS)
+          fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
+
         //publish rtc day of the week
         strncpy(topic,"DATA/DATE_TIME/rtc_dotw",MAXCHAR-1);
         strftime(payload, sizeof(payload), "%a", local_time_info);
@@ -120,7 +142,6 @@ int main()
           fprintf(stderr, "Publish failed: %s\n", mosquitto_strerror(rc));
 
         switchdate = 0; //only do once
-
       }
 
       //publish rtc local 12hr time
@@ -146,7 +167,6 @@ int main()
 
       if (strncmp(payload,"00:00:00",sizeof(payload)) == 0) // Once midnight then we'll switch the date/day data
         switchdate = 1;
-
     }
 
     mosquitto_disconnect(mosq);

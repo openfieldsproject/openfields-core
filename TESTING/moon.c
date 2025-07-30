@@ -156,8 +156,8 @@ void printTime(double hour, const char *label, int offset)
 int main()
 {
     // Brisbane, Australia
-    double latitude = -27.466086;
-    double longitude = 153.023359;
+    double latitude = -27.082193;
+    double longitude = 152.939673;
 
     // Get current date (UTC)
     time_t now = time(NULL);
@@ -175,6 +175,9 @@ int main()
     // Print UTC
     printTime(sunriseUTC, "Sunrise (UTC)", 0);
     printTime(sunsetUTC,  "Sunset  (UTC)", 0);
+
+    printf ("sr is %lf \n",sunriseUTC);
+    printf ("ss is %lf \n",sunsetUTC);
 
     // Print Brisbane time (UTC+10)
     printTime(sunriseUTC, "Sunrise (Brisbane)", 10);

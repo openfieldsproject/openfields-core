@@ -6,21 +6,27 @@
 
 #define MAXSIZE 32
 
+// Constants
+#define PI 3.14159265358979323846
+#define LUNA_REV 29.5305882
+
 typedef struct
 {
   time_t epoch;
+  double tz_offset;
   int day_of_year;
 
   double latitude;
   double longitude;
 
-  double sunrise_utc;
-  double sunset_utc;
+  char sunrise_local[MAXSIZE];
+  char sunset_local[MAXSIZE];
   double sun_elevation;
   double sun_azimuth;
   double solar_percent;
 
   double phase;
+  double days_next_pahse;
   char phase_name[MAXSIZE];
   double lunar_illumination;
 

@@ -1,5 +1,7 @@
-# Compiler
+# Compiler and tools
 CC = gcc
+SPLINT = splint
+VALGRIND = valgrind
 
 # Directories
 SRC_DIR = src
@@ -21,9 +23,12 @@ OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_SUBDIR)/%.o, $(SRCS))
 # Output executable path inside build subdir
 TARGET = monitor_sys_stats
 
-# Flags
-CFLAGS_RELEASE = -lmosquitto -lm -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wconversion -Wsign-conversion -Werror -I$(INCLUDE_DIR) -O2
-CFLAGS_DEBUG = -lmosquitto -lm -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wconversion -Wsign-conversion -Werror -I$(INCLUDE_DIR) -O0 -g
+# Compiler flags (without linker libs)
+CFLAGS_RELEASE = -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wconversion -Wsign-conversion -Werror -I$(INCLUDE_DIR) -O2
+CFLAGS_DEBUG = -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wconversion -Wsign-conversion -Werror -I$(INCLUDE_DIR) -O0 -g
+
+# Linker flags (libraries)
+LDFLAGS = -lmosquitto -lm
 
 # Select flags based on build mode
 ifeq ($(BUILD_MODE),debug)
@@ -32,12 +37,12 @@ else
 	CFLAGS = $(CFLAGS_RELEASE)
 endif
 
-.PHONY: all clean debug release
+.PHONY: all clean debug release splint valgrind
 
 all: $(BUILD_SUBDIR) $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 $(BUILD_SUBDIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_SUBDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -47,10 +52,18 @@ $(BUILD_SUBDIR):
 
 clean:
 	rm -rf $(BUILD_DIR)
-	rm $(TARGET)
+	rm -f $(TARGET)
 
 debug:
 	$(MAKE) BUILD_MODE=debug
 
 release:
 	$(MAKE) BUILD_MODE=release
+
+# Static analysis target with splint
+splint:
+	$(SPLINT) $(SRCS)
+
+# Memory checking target with valgrind (runs executable)
+valgrind: $(TARGET)
+	$(VALGRIND) --leak-check=full --track-origins=yes ./$(TARGET)

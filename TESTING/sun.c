@@ -92,8 +92,8 @@ void calculate_solar_position(time_t epoch, double latitude_deg, double longitud
 int main()
 {
     // Brisbane, Australia
-    double latitude = -27.466086;
-    double longitude = 153.023359;
+    double latitude = -27.081963;
+    double longitude = 152.939755;
 
     // Use current time as UTC epoch
     time_t current_epoch = time(NULL);
@@ -102,6 +102,7 @@ int main()
 
     calculate_solar_position(current_epoch, latitude, longitude, &elevation, &azimuth, &solar_energy);
 
+    printf ("Current Epoch %ld\n",current_epoch);
     printf("Solar Elevation: %.2f°\n", elevation);
     printf("Solar Azimuth: %.2f°\n", azimuth);
     printf("Available Solar Energy: %.1f%% (clear-sky estimate)\n", solar_energy);

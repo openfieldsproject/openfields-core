@@ -124,7 +124,6 @@ int main()
   // Wait for all required data
   int timeout_ms = 10000; // 10 seconds
   int waited = 0;
-
   while ((module_data.ok_pub & OK_ALL) != OK_ALL && waited < timeout_ms && running)
   {
       mosquitto_loop(mosq, 100, 1); // process messages
@@ -160,98 +159,9 @@ int main()
       fprintf(stderr, "Timed out waiting for all input data.\n");
   }
 
-  printf ("Sunrise : %s\n",module_data.sunrise_local);
-  printf ("Sunset : %s\n",module_data.sunset_local);
-  printf ("Sun Elevation : %.2lf°\n",module_data.sun_elevation);
-  printf ("Sun Azmuth : %.2lf°\n",module_data.sun_azimuth);
-  printf ("Solar Output : %.2lf%%\n",module_data.solar_percent);
-
-  printf ("Moon's Orbit : %.2lf\n",module_data.phase);
-  printf ("DNQ : %.2f days\n",module_data.days_next_phase);
-  printf ("Current Phase : %s\n",module_data.phase_name);
-  printf ("Current Illumination : %.2lf%%\n",module_data.lunar_illumination*100);
-
   mosquitto_disconnect(mosq);
   mosquitto_destroy(mosq);
   mosquitto_lib_cleanup();
 
   return EXIT_SUCCESS;
 }
-/*
-on demand // After successful processing:
-if ((data->ok_pub & OK_ALL) == OK_ALL && !data->processed) {
-    ...
-    mosquitto_unsubscribe(mosq, NULL, "DATA/GPS/latitude");
-    mosquitto_unsubscribe(mosq, NULL, "DATA/GPS/longitude");
-    mosquitto_unsubscribe(mosq, NULL, "DATA/DATE_TIME/rtc_epoch");
-    mosquitto_unsubscribe(mosq, NULL, "DATA/DATE_TIME/rtc_tz_offset");
-}
-
-
-
-
-
-loop forever main to change to
-To change your C program so it loops forever after subscribing to an MQTT topic and continues to receive and process messages, you need to move your logic into a loop after setting up the MQTT client and subscribing. Here's a general structure you can adapt depending on the MQTT library you're using (like Paho MQTT C or Mosquitto).
-
-Example using libmosquitto:
-c
-Copy
-Edit
-#include <mosquitto.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-void on_connect(struct mosquitto *mosq, void *userdata, int rc) {
-    if (rc == 0) {
-        printf("Connected to broker.\n");
-        mosquitto_subscribe(mosq, NULL, "your/topic", 0);
-    } else {
-        printf("Failed to connect, return code %d\n", rc);
-    }
-}
-
-void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
-    printf("Received message on topic %s: %s\n", message->topic, (char *)message->payload);
-
-    // Your processing logic here
-    // If you want to quit after a certain condition:
-    // mosquitto_disconnect(mosq);
-}
-
-int main(int argc, char *argv[]) {
-    mosquitto_lib_init();
-
-    struct mosquitto *mosq = mosquitto_new(NULL, true, NULL);
-    if (!mosq) {
-        fprintf(stderr, "Failed to create Mosquitto instance.\n");
-        return 1;
-    }
-
-    mosquitto_connect_callback_set(mosq, on_connect);
-    mosquitto_message_callback_set(mosq, on_message);
-
-    if (mosquitto_connect(mosq, "localhost", 1883, 60) != MOSQ_ERR_SUCCESS) {
-        fprintf(stderr, "Unable to connect to broker.\n");
-        return 1;
-    }
-
-    // This loops forever, handling reconnects and calling callbacks
-    mosquitto_loop_forever(mosq, -1, 1);
-
-    mosquitto_destroy(mosq);
-    mosquitto_lib_cleanup();
-
-    return 0;
-}
-
-
-
-
-
-
-
-
-
-*/

@@ -126,24 +126,24 @@ double getMoonPhase(struct tm *date)
   return phase;
 }
 
-void getPhaseName(astro_info * ad)
+const char* getPhaseName(double phase)
 {
-  if (ad->phase < 0.03 || ad->phase > 0.97)
-    strncpy(ad->phase_name, "New Moon", MAXSIZE);
-  else if (ad->phase < 0.22)
-    strncpy(ad->phase_name, "Waxing Crescent", MAXSIZE);
-  else if (ad->phase < 0.28)
-    strncpy(ad->phase_name, "First Quarter", MAXSIZE);
-  else if (ad->phase < 0.47)
-    strncpy(ad->phase_name, "Waxing Gibbous", MAXSIZE);
-  else if (ad->phase < 0.53)
-    strncpy(ad->phase_name, "Full Moon", MAXSIZE);
-  else if (ad->phase < 0.72)
-    strncpy(ad->phase_name, "Waning Gibbous", MAXSIZE);
-  else if (ad->phase < 0.78)
-    strncpy(ad->phase_name, "Last Quarter", MAXSIZE);
+  if (phase < 0.03 || phase > 0.97)
+    return "New Moon";
+  else if (phase < 0.22)
+    return "Waxing Crescent";
+  else if (phase < 0.28)
+    return "First Quarter";
+  else if (phase < 0.47)
+    return "Waxing Gibbous";
+  else if (phase < 0.53)
+    return "Full Moon";
+  else if (phase < 0.72)
+    return "Waning Gibbous";
+  else if (phase < 0.78)
+    return "Last Quarter";
   else
-    strncpy(ad->phase_name, "Waning Crescent", MAXSIZE);
+    return "Waning Crescent";
 }
 
 
@@ -258,7 +258,7 @@ void localize_time(double hour, double offset, char * loctime)
     m = 0;
     h = (h + 1) % 24;
   }
-  snprintf(loctime,MAXSIZE,"%02d:%02d %s", h, m,am_pm);
+  snprintf(loctime,MAXSIZE,"%02d:%02d %s\n", h, m,am_pm);
 }
 
 //***** FIX up */
@@ -289,8 +289,7 @@ int lunar_data(astro_info * ad)
     localize_time(sunsetUTC,  tz_data, ad->sunset_local);
   }
 
-  ad->phase = getMoonPhase(utc);
-  getPhaseName(ad);
-  ad->lunar_illumination = (1.0 - cos(2 * PI * ad->phase)) / 2.0;
+  double phase = getMoonPhase(utc);
+  printf("Moon phase: %.2f (%s)\n", phase, getPhaseName(phase));
   return 0;
 }

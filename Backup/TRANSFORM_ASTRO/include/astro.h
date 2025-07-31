@@ -26,7 +26,7 @@ typedef struct
   double solar_percent;
 
   double phase;
-  double days_next_phase;
+  double days_next_pahse;
   char phase_name[MAXSIZE];
   double lunar_illumination;
 

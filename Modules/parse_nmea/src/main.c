@@ -1,5 +1,5 @@
 /*
- * Module Name: PARSE_NMEA
+ * Module Name: parse_nmea
  * Description: Processes raw sensor input into component or normalized data.
  * Author: Gavin Behrens
  * License: GPLv3

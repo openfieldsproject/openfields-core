@@ -1,5 +1,5 @@
 /*
- * Module Name: TRANSFORM_ASTRO
+ * Module Name: transform_astro
  * Description: Collects RTC Epoch, GPS longitude & latitude then calculates:
  *              -- Moon Phase
  *              -- Moon Illumination
@@ -49,12 +49,13 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
 {
   astro_info *data = (astro_info *)userdata;
   (void)mosq;
-  if (!msg->payloadlen)
+
+  if (msg->payloadlen == 0)
     return;
 
   if (strcmp(msg->topic, "DATA/DATE_TIME/rtc_epoch") == 0)
   {
-    data->epoch = atol((char *)msg->payload);
+    data->epoch = (time_t)atol((char *)msg->payload);
     data->ok_pub |= OK_EPOCH;
   }
   else if (strcmp(msg->topic, "DATA/DATE_TIME/rtc_tz_offset") == 0)
@@ -119,13 +120,13 @@ int main()
   mosquitto_subscribe(mosq, NULL, "DATA/GPS/latitude", QOS);
   mosquitto_subscribe(mosq, NULL, "DATA/GPS/longitude", QOS);
   mosquitto_subscribe(mosq, NULL, "CONTROL/ASTRO/req_luna", QOS);
-  mosquitto_subscribe(mosq, NULL, "CONTROL/ASTRO/req_sola", QOS);
+  mosquitto_subscribe(mosq, NULL, "CONTROL/ASTRO/req_solar", QOS);
 
   // Wait for all required data
   int timeout_ms = 10000; // 10 seconds
   int waited = 0;
 
-  while ((module_data.ok_pub & OK_ALL) != OK_ALL && waited < timeout_ms && running)
+  while (((int)module_data.ok_pub & OK_ALL) != OK_ALL && waited < timeout_ms && (running != 0))
   {
       mosquitto_loop(mosq, 100, 1); // process messages
       usleep(100000); // sleep 100ms
@@ -133,7 +134,7 @@ int main()
   }
 
   // Once all data is received
-  if ((module_data.ok_pub & OK_ALL) == OK_ALL)
+  if (((int)module_data.ok_pub & OK_ALL) == OK_ALL)
   {
     if (lunar_data(&module_data) == EXIT_SUCCESS)
     {

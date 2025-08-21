@@ -1,5 +1,5 @@
 /*
- * Module Name: INPUT_RTC
+ * Module Name: input_rtc
  * Description: Collects the server's RTC details
  * Author: Gavin Behrens
  * License: GPLv3

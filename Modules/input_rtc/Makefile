@@ -21,7 +21,7 @@ BUILD_SUBDIR = $(BUILD_DIR)/$(BUILD_MODE)
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_SUBDIR)/%.o, $(SRCS))
 
 # Output executable path inside build subdir
-TARGET = monitor_sys_stats
+TARGET = input_rtc
 
 # Compiler flags (without linker libs)
 CFLAGS_RELEASE = -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wconversion -Wsign-conversion -Werror -I$(INCLUDE_DIR) -O2
@@ -39,7 +39,7 @@ endif
 
 .PHONY: all clean debug release splint valgrind
 
-all: $(BUILD_SUBDIR) $(TARGET)
+all: splint $(BUILD_SUBDIR) $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
@@ -62,8 +62,10 @@ release:
 
 # Static analysis target with splint
 splint:
-	$(SPLINT) $(SRCS)
+	@echo "Running Splint static analysis..."
+	@$(SPLINT) $(SRCS) || (echo "Splint detected issues, stopping build." && exit 1)
 
 # Memory checking target with valgrind (runs executable)
 valgrind: $(TARGET)
 	$(VALGRIND) --leak-check=full --track-origins=yes ./$(TARGET)
+

@@ -1,5 +1,5 @@
 /*
- * Module Name: MONITOR_SYS_STATS
+ * Module Name: monitor_sys_stats
  * Description: Collects the server's CPU , Memory and Storage details
  *  * Author: Gavin Behrens
  * License: GPLv3

@@ -39,7 +39,7 @@ endif
 
 .PHONY: all clean debug release splint valgrind
 
-all: $(BUILD_SUBDIR) $(TARGET)
+all: splint $(BUILD_SUBDIR) $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
@@ -62,7 +62,8 @@ release:
 
 # Static analysis target with splint
 splint:
-	$(SPLINT) $(SRCS)
+	@echo "Running Splint static analysis..."
+	@$(SPLINT) $(SRCS) || (echo "Splint detected issues, stopping build." && exit 1)
 
 # Memory checking target with valgrind (runs executable)
 valgrind: $(TARGET)

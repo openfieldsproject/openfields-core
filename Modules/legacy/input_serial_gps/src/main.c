@@ -1,5 +1,5 @@
 /*
- * Module Name: INPUT_SERIAL_GPS
+ * Module Name: input_serail_gps
  * Description: Reads raw nmea sentences from USB GPS receiver and publishes to topic.
  * Author: Gavin Behrens
  * License: GPLv3

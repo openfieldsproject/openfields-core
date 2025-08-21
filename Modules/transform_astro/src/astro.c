@@ -90,7 +90,9 @@ int solar_data(astro_info * ad)
 {
   double latitude = ad->latitude;
   double longitude = ad->longitude;
-  double elevation, azimuth, solar_energy;
+  double elevation =  0.0;
+  double azimuth = 0.0;
+  double solar_energy = 0.0;
 
   // Use current time as UTC epoch
   time_t current_epoch = ad->epoch;
@@ -261,7 +263,7 @@ void localize_time(double hour, double offset, char * loctime)
   snprintf(loctime,MAXSIZE,"%02d:%02d %s", h, m,am_pm);
 }
 
-//***** FIX up */
+/***** FIX up */
 int lunar_data(astro_info * ad)
 {
   double latitude = ad->latitude;
@@ -275,7 +277,9 @@ int lunar_data(astro_info * ad)
 
 
   // Get localized time
-  double sunriseUTC, sunsetUTC;
+  double sunriseUTC = 0.0;
+  double sunsetUTC = 0.0;
+
   calculateSunriseSunsetUTC(latitude, longitude, day, &sunriseUTC, &sunsetUTC);
   if (sunriseUTC < 0 || sunsetUTC < 0)
   {

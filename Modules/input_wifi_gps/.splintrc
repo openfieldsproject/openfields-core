@@ -1,4 +1,8 @@
 +posixlib
++skip-sys-headers
+-unrecog     # suppress "Unrecognized identifier"
+-type        # suppress type mismatch warnings
++charint     # make char and int constants compatible
 -I./include
 -noeffect
 -retvalint

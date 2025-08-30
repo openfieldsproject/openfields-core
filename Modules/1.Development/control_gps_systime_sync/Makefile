@@ -21,14 +21,14 @@ BUILD_SUBDIR = $(BUILD_DIR)/$(BUILD_MODE)
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_SUBDIR)/%.o, $(SRCS))
 
 # Output executable path inside build subdir
-TARGET = input_wifi_gps
+TARGET = control_time
 
 # Compiler flags (without linker libs)
 CFLAGS_RELEASE = -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wconversion -Wsign-conversion -Werror -I$(INCLUDE_DIR) -O2
 CFLAGS_DEBUG = -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wconversion -Wsign-conversion -Werror -I$(INCLUDE_DIR) -O0 -g
 
 # Linker flags (libraries)
-LDFLAGS = -lm -lssl -lcrypto
+LDFLAGS = -lmosquitto -lm
 
 # Select flags based on build mode
 ifeq ($(BUILD_MODE),debug)
@@ -39,7 +39,7 @@ endif
 
 .PHONY: all clean debug release splint valgrind
 
-all:  $(BUILD_SUBDIR) $(TARGET)
+all: $(BUILD_SUBDIR) $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
@@ -68,4 +68,7 @@ splint:
 # Memory checking target with valgrind (runs executable)
 valgrind: $(TARGET)
 	$(VALGRIND) --leak-check=full --track-origins=yes ./$(TARGET)
+
+
+
 

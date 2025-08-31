@@ -15,8 +15,6 @@
 #include <errno.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <openssl/evp.h>
-#include <openssl/aes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,56 +26,21 @@
 #include "ofp.h"
 
 #define LISTEN_PORT 10001
-#define TOPIC_FILE "/opt/openfields/raw/nmea/gps0"
+#define SOURCE "PHYSICAL GPS 1 - tcp://172.18.200.102:10001"  // Device or Service Source
+#define TARGET "/raw/nmea/gps1"
 
-static const unsigned char g_aes_key[16] =
-{0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,
+#define AES_KEY ((unsigned char[]){ 0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff })
+
+
+
+//#define AES_KEY {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff}
+
+/*const unsigned char aes_key[16] =
+{
+ 0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,
  0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff
 };
-
-
-// ---------- Simple checksum ----------
-static uint32_t simple_checksum(const char *data)
-{
-    uint32_t sum = 0;
-    while (*data) sum += (unsigned char)(*data++);
-    return sum;
-}
-
-// ---------- AES decrypt ----------
-static int decrypt_message(unsigned char *cipher, int cipher_len,
-                           unsigned char *iv, char *out, int out_size)
-{
-    int len = 0, plain_len = 0;
-    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
-    if(!ctx) return -1;
-
-    if(EVP_DecryptInit_ex(ctx, EVP_aes_128_cbc(), NULL, g_aes_key, iv) != 1)
-    {
-        EVP_CIPHER_CTX_free(ctx);
-        return -1;
-    }
-
-    if(EVP_DecryptUpdate(ctx, (unsigned char*)out, &len, cipher, cipher_len) != 1)
-    {
-        EVP_CIPHER_CTX_free(ctx);
-        return -1;
-    }
-    plain_len = len;
-
-    if(EVP_DecryptFinal_ex(ctx, (unsigned char*)out + len, &len) != 1)
-    {
-        EVP_CIPHER_CTX_free(ctx);
-        return -1;
-    }
-    plain_len += len;
-
-    EVP_CIPHER_CTX_free(ctx);
-
-    if(plain_len >= out_size) return -1;
-    out[plain_len] = '\0';
-    return plain_len;
-}
+*/
 
 // ---------- TCP read helper ----------
 ssize_t read_n_bytes(int fd, void *buf, size_t n)
@@ -94,17 +57,17 @@ ssize_t read_n_bytes(int fd, void *buf, size_t n)
 }
 
 // ---------- Write topic to RAMFS ----------
-void publish_ramfs(const char *source, const char *payload)
+void publish_ramfs(const char *payload)
 {
     ofp_topic msg;
-    strncpy(msg.type, source, sizeof(msg.type)-1);
-    msg.type[sizeof(msg.type)-1] = '\0';
+    strncpy(msg.source, SOURCE, sizeof(msg.source)-1);
+    msg.source[sizeof(msg.source)-1] = '\0';
     strncpy(msg.data, payload, sizeof(msg.data)-1);
     msg.data[sizeof(msg.data)-1] = '\0';
     msg.timestamp = time(NULL);
     msg.crc = simple_checksum(msg.data);
 
-    FILE *f = fopen(TOPIC_FILE, "wb");
+    FILE *f = fopen(BASEDIR TARGET, "wb");
     if (!f) { perror("fopen"); return; }
 
     fwrite(&msg, sizeof(ofp_topic), 1, f);
@@ -119,6 +82,8 @@ void handle_client(int client_fd)
     unsigned char iv[16];
     unsigned char buffer[1024];
     char plaintext[1024];
+
+
 
     while(1)
     {
@@ -135,11 +100,11 @@ void handle_client(int client_fd)
         n = read_n_bytes(client_fd, buffer, cipher_len);
         if(n <= 0) break;
 
-        int plain_len = decrypt_message(buffer, (int)cipher_len, iv, plaintext, sizeof(plaintext));
+        int plain_len = decrypt_message(buffer, (int)cipher_len, iv, plaintext, sizeof(plaintext), AES_KEY);
         if(plain_len > 0)
         {
             printf("Received: %s\n", plaintext);
-            publish_ramfs("GPS_RAW", plaintext);
+            publish_ramfs(plaintext);
         }
     }
 

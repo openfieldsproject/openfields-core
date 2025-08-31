@@ -5,7 +5,7 @@
  * License: GPLv3
  * Dependencies: sys/socket, openssl, standard libc
  * Notes:
- *   - Publishes to: /opt/openfields/raw/nmea/gps0
+ *   - Publishes to: /opt/openfields/raw/nmea/gpsx
  *   - AES128-CBC necessary
  *   - Uses RAMFS(handles by OS-fstab), therefore normal file handlers required.
  *
@@ -30,17 +30,6 @@
 #define TARGET "/raw/nmea/gps1"
 
 #define AES_KEY ((unsigned char[]){ 0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff })
-
-
-
-//#define AES_KEY {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff}
-
-/*const unsigned char aes_key[16] =
-{
- 0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,
- 0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff
-};
-*/
 
 // ---------- TCP read helper ----------
 ssize_t read_n_bytes(int fd, void *buf, size_t n)
@@ -82,8 +71,6 @@ void handle_client(int client_fd)
     unsigned char iv[16];
     unsigned char buffer[1024];
     char plaintext[1024];
-
-
 
     while(1)
     {

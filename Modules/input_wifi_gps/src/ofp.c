@@ -1,9 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <openssl/evp.h>
 #include <openssl/aes.h>
 #include "ofp.h"
+
+// ---------- Error Loging ----------
+void ofp_error(const char *payload)
+{
+  FILE *f = fopen(BASEDIR "/error.log", "ab");
+
+  if (!f)
+  {
+    perror("fopen");
+    return;
+  }
+
+  fwrite(payload, sizeof(char), strlen(payload), f);
+  fflush(f);
+  fsync(fileno(f));
+  fclose(f);
+}
 
 // ---------- Simple checksum ----------
 uint32_t simple_checksum(const char *data)

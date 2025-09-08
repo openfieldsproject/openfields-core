@@ -25,11 +25,13 @@
 #include <time.h>
 #include <stdint.h>
 #include "ofp.h"
+#include "config.h"
+
 
 // ---------- Macros ----------
 #define THIS_UNIT   "input_wifi_gps: "
 #define LISTEN_PORT 10001
-#define SOURCE      "PHYSICAL GPS 1 - tcp://172.18.200.102:10001"
+#define SOURCE      "PHYSICAL GPS1 - 172.18.200.102"
 #define TARGET      "/raw/nmea/gps1"
 
 #define AES_KEY ((unsigned char[]){ 0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff })
@@ -57,11 +59,14 @@ static ssize_t read_n_bytes(int fd, void *buf, size_t n)
 }
 
 // ---------- Write topic to RAMFS ----------
-static void publish_ramfs(const char *payload)
+static void publish_ramfs(const char *payload, config_t * config)
 {
   ofp_topic msg = {0};
-  FILE *f = fopen(BASEDIR TARGET, "wb");
+  char filename[1600] = {0};
 
+  snprintf(filename, sizeof(filename), BASEDIR "%s", config->target);
+
+  FILE *f = fopen(filename, "wb");
   if (!f)
   {
     perror("fopen");
@@ -69,7 +74,7 @@ static void publish_ramfs(const char *payload)
     return;
   }
 
-  strncpy(msg.source, SOURCE, sizeof(msg.source)-1);
+  strncpy(msg.source, config->source, sizeof(msg.source)-1);
   msg.source[sizeof(msg.source)-1] = '\0';
 
   strncpy(msg.data, payload, sizeof(msg.data)-1);
@@ -86,7 +91,7 @@ static void publish_ramfs(const char *payload)
 }
 
 // ---------- Handle single client ----------
-static void handle_client(int client_fd)
+static void handle_client(int client_fd, config_t * config)
 {
   unsigned char iv[16];
   unsigned char buffer[1024];
@@ -116,11 +121,11 @@ static void handle_client(int client_fd)
     if(n <= 0)
       break;
 
-    plain_len = decrypt_message(buffer, (int)cipher_len, iv, plaintext, sizeof(plaintext), AES_KEY);
+    plain_len = decrypt_message(buffer, (int)cipher_len, iv, plaintext, sizeof(plaintext), config->aes_key);
     if(plain_len > 0)
     {
       printf("Received: %s\n", plaintext);
-      publish_ramfs(plaintext);
+      publish_ramfs(plaintext, config);
     }
   }
 
@@ -134,13 +139,25 @@ int main()
 {
   signal(SIGPIPE, SIG_IGN);
 
+  config_t app_config = {0};
+  app_config.module_name[MAXDATA - 1] = '\0';
+  app_config.source[MAXDATA - 1] = '\0';
+  app_config.target[MAXDATA - 1] = '\0';
+
+  if (read_config(&app_config) != 0)
+  {
+    printf ("Can't read config file.\n");
+    return (EXIT_FAILURE);
+  }
+
+
   int server_fd = socket(AF_INET, SOCK_STREAM, 0);
   if(server_fd < 0)
   {
     perror("socket");
     ofp_error(THIS_UNIT "Unable to creat TCP socket\n");
     return 1;
-}
+ }
 
   int opt = 1;
   setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -149,7 +166,7 @@ int main()
   memset(&addr, 0, sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = INADDR_ANY;
-  addr.sin_port = htons(LISTEN_PORT);
+  addr.sin_port = htons(app_config.listen_port);
 
   if(bind(server_fd,(struct sockaddr*)&addr,sizeof(addr)) < 0)
   {
@@ -187,7 +204,7 @@ int main()
       setsockopt(client_fd, IPPROTO_TCP, TCP_KEEPCNT, &keepcnt, sizeof(keepcnt));
 
       // Handles the data from tcp source
-      handle_client(client_fd);
+      handle_client(client_fd, &app_config);
     }
   }
 

@@ -1,0 +1,17 @@
+Checking src/config.c ...
+src/config.c:0:0: information: Limiting analysis of branches. Use --check-level=exhaustive to analyze all branches. [normalCheckLevelMaxBranches]
+
+^
+1/3 files checked 23% done
+Checking src/main.c ...
+src/main.c:0:0: information: Limiting analysis of branches. Use --check-level=exhaustive to analyze all branches. [normalCheckLevelMaxBranches]
+
+^
+src/main.c:62:59: style: Parameter 'config' can be declared as pointer to const [constParameterPointer]
+static void publish_ramfs(const char *payload, config_t * config)
+                                                          ^
+2/3 files checked 83% done
+Checking src/ofp.c ...
+3/3 files checked 100% done
+nofile:0:0: information: Active checkers: 117/966 (use --checkers-report=<filename> to see details) [checkersReport]
+

@@ -1,9 +1,0 @@
-+posixlib
--I./include
--noeffect
--retvalint
--retvalother
--nullpass
--mustfreefresh
--fullinitblock
--exportlocal

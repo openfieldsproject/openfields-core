@@ -18,7 +18,7 @@ BUILD_SUBDIR = $(BUILD_DIR)/$(BUILD_MODE)
 
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_SUBDIR)/%.o, $(SRCS))
 
-TARGET = gpsdpostion
+TARGET = set_gpsdposition
 
 # Compiler flags
 CFLAGS_RELEASE = -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 \
@@ -35,7 +35,7 @@ else
 	CFLAGS = $(CFLAGS_RELEASE)
 endif
 
-LDFLAGS = -lgps
+LDFLAGS = -lgps -lofp
 
 .PHONY: all clean debug release cppcheck scan-build valgrind fullcheck
 

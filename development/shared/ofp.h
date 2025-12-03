@@ -4,19 +4,20 @@
 
 typedef struct ofp
 {
-  int           version;
-  int           epoch;
-  char          source[12];
-  unsigned char flags;
+  unsigned char version;  // OFP data structure V1.0
+  time_t        epoch;
+  char          source[33];
   unsigned char data[32];
-  char          notes[976];
-  //
-} ofpdata;
+  char          notes[512];
+  unsigned char flags;
+  unsigned char crc;
+} ofpdata;      
 
-
-int get_ofptime();
-int ofptime_quality();
-int get_lastsyncdelta();
-int ofplog(const char * entry);
+int ofp_read(const char * readfile, ofpdata * ofpdata);
+int ofp_write(const char * writefile, ofpdata * ofpdata);
+time_t get_ofptime();
+time_t ofptime_quality();
+time_t get_lastsyncdelta(const char * filename);
+unsigned int ofplog(const char * entry);
 
 #endif

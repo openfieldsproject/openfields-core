@@ -3,134 +3,84 @@
 #include <time.h>
 #include "ofp.h"
 
-#define MOD_NAME "libofp : "
-
 //------------------------------------------------------------------
-int get_ofptime()
+int ofp_read(const char * readfile, ofpdata * ofprdata)
 {
-  return (int) time(NULL);
-}
-
-//------------------------------------------------------------------
-int ofptime_quality()
-{
-/**
-* @brief Used by other modules to assess system time quality relative to GPS sync.
-*
-* This function returns quality of the system time while taking into account
-* the last known GPS time stored in the timesync file.  Required at boot time and 
-* long periods between syncs to test time drift on systems with no RTC.
-*
-* timesync module runs via cron job every 10 mins.
-*
-* @return
-* * 0: GPSD not polled yet or timesync file missing/corrupt
-* * 1 – 6: Trust score indicating how out-of-sync the system clock is with the last GPS fix
-*  
-*     - 0 : GPSD not polled or missing/corrupt timesync ofp file
-*     - 1 : last polled 1+ days
-*     - 2 : last polled 6 hrs - 1 day
-*     - 3 : last polled 1 hrs - 6 hrs
-*     - 4 : last polled 30-59 mins
-*     - 5 : last polled 20-30 mins
-*     - 6 : last polled 11-20 mins
-*     - system time : if sync within 10 mins 59 seconds
-*     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*     - (-1) : means gpsd sync has not occured since boot. (System time should never be trusted)
-*     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     
-*
-*  if system time is greater than last known time sync then assumed that time is current 
-*  and current system epoch is returned. 
-* 
-*
-* @note
-* The return value allows other modules to determine time trustworthiness and
-* take action (e.g., delay time-sensitive operations) until GPS sync is reliable.
-  */
-
-  ofpdata data; 
-
-  FILE *fp = fopen("/opt/ofp/wdata/monitor/timesync.ofp", "rb");
+  FILE * fp = fopen(readfile, "rb");
 
   if (!fp)
   {
-    ofplog(MOD_NAME "timesync file is not found.");
+    ofprdata->flags = 1 << 7;
     return 0;
   }
-  
-  if (fread(&data, sizeof(ofpdata), 1, fp) != 1) 
+
+  if (fread(ofprdata, sizeof(ofpdata), 1, fp) != 1) 
   {
-    ofplog(MOD_NAME "timesync file is corrupted.");
+    ofprdata->flags = 1 << 6;
     return 0;
   }
-  
+
   fclose(fp);
-
-  time_t current_time = time(NULL);       // Getting the current system time
-
-  if ((current_time < data.epoch))       // Time requires resync after reboot.(***No Processing should occur.***)
-  {
-    ofplog(MOD_NAME "System restart detected, timesync is required after (re)boot.");
-    return -1;                            
-  }
-
-  if ((current_time - data.epoch) > (24 * 3600))
-    return 1;
- 
-  if ((current_time - data.epoch) > (6 * 3600))
-    return 2;   
-
-  if ((current_time - data.epoch) > 3600)
-    return 3;
-
-  if ((current_time - data.epoch) > 1800)
-    return 4;
-
-  if ((current_time - data.epoch) > 1200)
-    return 5;
-
-  if ((current_time - data.epoch) > 660)
-    return 6;
-
-  return (int)current_time;
+  return 1;
 }
 
+int ofp_write(const char * writefile, ofpdata * ofpwdata)
+{
+  char tempfile[520];
+  strncpy (tempfile,writefile,512);
+  strncat (tempfile,".tmp\0",6);
+
+  FILE * fp = fopen(tempfile, "wb");
+
+  if (fp) 
+  {
+      fwrite(ofpwdata, sizeof(ofpdata), 1, fp);
+      fclose(fp);
+      rename(tempfile, writefile);
+      return 1;
+  }
+  return 0;
+}
 
 //------------------------------------------------------------------
-int get_lastsyncdelta()
+time_t get_ofptime()
+{
+  return time(NULL);
+}
+
+//------------------------------------------------------------------
+time_t ofptime_quality()
+{
+  return get_lastsyncdelta("/opt/ofp/wdata/monitor/timesync.ofp"); 
+}
+
+//------------------------------------------------------------------
+time_t get_lastsyncdelta(const char * filename)
 {
   ofpdata data; 
 
-  FILE *fp = fopen("/opt/ofp/wdata/monitor/timesync.ofp", "rb");
+  FILE *fp = fopen(filename, "rb");
 
   if (!fp)
-  {
-    ofplog(MOD_NAME "get_lastsyncdelta - timesync file is not found.");
-    return 0;
-  }
+    return -1;
   
   if (fread(&data, sizeof(ofpdata), 1, fp) != 1) 
-  {
-    ofplog(MOD_NAME "get_lastsyncdelta - timesync file is corrupted.");
-    return 0;
-  }
+    return -2;
   
   fclose(fp);
 
-  time_t current_time = time(NULL);       // Getting the current system time
-
-  if ((current_time < data.epoch))       // Time requires resync after reboot.(***No Processing should occur.***)
-  {
-    ofplog(MOD_NAME "System restart detected, timesync is required after (re)boot.");
-    return -1;                            
+  time_t current_time = time(NULL);      // Getting the current system time
+  if ((current_time - data.epoch) < -10) // Detects reboot while taking into account
+  {                                      // faster clock between resyncs.
+    return -3;                            
   }
 
-  return (int) current_time - data.epoch;
+  return current_time - data.epoch;
 }
 
 
 //------------------------------------------------------------------
-int ofplog(const char *entry)
+unsigned int ofplog(const char *entry)
 /**
  * @brief Append a message to the OFP log file
  *

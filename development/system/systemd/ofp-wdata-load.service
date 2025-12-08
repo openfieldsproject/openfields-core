@@ -1,0 +1,17 @@
+[Unit]
+Description=Load /opt/ofp/wdata from persistent storage
+Requires=local-fs.target
+After=local-fs.target
+
+[Service]
+Type=oneshot
+# Ensure the persistent directory exists
+ExecStartPre=/usr/bin/mkdir -p /opt/ofp/bdata
+# Copy the persistent data to the RAM disk
+# -a: archive mode (preserves permissions, timestamps, etc.)
+# -v: verbose (optional)
+ExecStart=/usr/bin/rsync -av /opt/ofp/bdata/ /opt/ofp/wdata/
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,43 @@
+#!/bin/bash
+RRD_FILE="/opt/ofp/wdata/rrd/loadavg.rrd"
+IMG_PATH="/opt/ofp/wdata/rrd/graphs/"
+mkdir -p "$IMG_PATH"
+
+generate_graph() {
+    local time_range=$1
+    local title=$2
+    local output_file=$3
+
+    rrdtool graph "$output_file" \
+        --width 800 --height 400 \
+        --lower-limit 0 \
+        --vertical-label "Load Average" \
+        --title "$title" \
+        --start "$time_range" --end now \
+        --color BACK#000000 \
+        --color CANVAS#000000 \
+        --color FONT#FFFFFF \
+        --color AXIS#FFFFFF \
+        --color GRID#555555 \
+        --color MGRID#888888 \
+        DEF:avg1=$RRD_FILE:load1min:AVERAGE \
+        DEF:avg5=$RRD_FILE:load5min:AVERAGE \
+        DEF:avg15=$RRD_FILE:load15min:AVERAGE \
+        CDEF:area1=avg1,0,MAX \
+        AREA:area1#FF000030:"1 min Avg" \
+        CDEF:area5=avg5,0,MAX \
+        AREA:area5#00FF0030:"5 min Avg" \
+        CDEF:area15=avg15,0,MAX \
+        AREA:area15#00FFFF30:"15 min Avg" \
+        LINE2:avg1#FF0000:"1 min Avg" \
+        LINE2:avg5#00FF00:"5 min Avg" \
+        LINE2:avg15#00FFFF:"15 min Avg" \
+        HRULE:0.5#FFFFFF:"Load=25%" \
+        HRULE:1#888888:"Load=50%" \
+        HRULE:2#555555:"Load=100%"
+}
+
+# Generate all three graphs
+generate_graph "-1h"  "System Load (Last 1 Hour)"   "${IMG_PATH}load_1hour.png"
+generate_graph "-24h" "System Load (Last 24 Hours)" "${IMG_PATH}load_24hour.png"
+generate_graph "-1w"  "System Load (Last 1 Week)"   "${IMG_PATH}load_1week.png"

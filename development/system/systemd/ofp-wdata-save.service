@@ -1,0 +1,18 @@
+[Unit]
+Description=Save /opt/ofp/wdata to persistent storage
+# CRITICAL: Ensure this runs *before* the unmount process starts (umount.target)
+Before=umount.target
+# CRITICAL: This allows the service to run during the shutdown sequence
+DefaultDependencies=no 
+
+[Service]
+Type=oneshot
+# Ensure the destination (bdata) exists before copying
+ExecStartPre=/usr/bin/mkdir -p /opt/ofp/bdata
+# Copy the data from the RAM disk back to persistent storage
+ExecStart=/usr/bin/rsync -av --delete /opt/ofp/wdata/ /opt/ofp/bdata/
+RemainAfterExit=yes
+
+[Install]
+# Ensure it is properly activated by all relevant shutdown targets
+WantedBy=shutdown.target reboot.target poweroff.target

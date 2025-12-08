@@ -1,0 +1,19 @@
+# OFP Date/Time/Position
+@reboot /opt/ofp/bin/set_gpsdtime -d
+*/9 * * * * /opt/ofp/bin/set_gpsdtime
+*/15 * * * * /opt/ofp/bin/set_gpsdposition
+
+
+# System Stats
+* * * * * /opt/ofp/wdata/rrd/scripts/update_load.sh
+*/5 * * * * /opt/ofp/wdata/rrd/scripts/graph_loads.sh
+
+
+* * * * * sleep 5; /opt/ofp/wdata/rrd/scripts/update_temp.sh
+*/5 * * * * /opt/ofp/wdata/rrd/scripts/graph_temp.sh
+
+* * * * * /opt/ofp/wdata/rrd/scripts/update_memory.sh
+*/5 * * * * /opt/ofp/wdata/rrd/scripts/graph_memory.sh
+
+*/30 * * * * /opt/ofp/wdata/rrd/scripts/update_fs.sh
+*/30 * * * * /opt/ofp/wdata/rrd/scripts/graph_fs.sh

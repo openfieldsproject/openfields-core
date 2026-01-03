@@ -35,7 +35,7 @@ else
 	CFLAGS = $(CFLAGS_RELEASE)
 endif
 
-LDFLAGS = -lgps -lofp -lm
+LDFLAGS = -lgps -lofp -lm -lrrd
 
 .PHONY: all clean debug release cppcheck scan-build valgrind fullcheck
 

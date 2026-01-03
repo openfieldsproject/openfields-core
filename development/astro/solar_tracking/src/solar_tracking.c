@@ -1,7 +1,7 @@
 #include <math.h>
 #include <time.h>
 #include <ofp.h>
-#include "astro.h"
+#include "solar_tracking.h"
 
 
 // Convert degrees to radians

@@ -18,7 +18,7 @@ BUILD_SUBDIR = $(BUILD_DIR)/$(BUILD_MODE)
 
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_SUBDIR)/%.o, $(SRCS))
 
-TARGET = set_astro_daily
+TARGET = rise_and_set
 
 # Compiler flags
 CFLAGS_RELEASE = -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 \
@@ -35,7 +35,7 @@ else
 	CFLAGS = $(CFLAGS_RELEASE)
 endif
 
-LDFLAGS = -lgps -lofp
+LDFLAGS = -lgps -lofp -lm
 
 .PHONY: all clean debug release cppcheck scan-build valgrind fullcheck
 

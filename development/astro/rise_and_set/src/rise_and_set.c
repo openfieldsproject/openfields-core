@@ -107,7 +107,7 @@ static double moon_phase_percent(time_t t)
 
 /* ==================== PUBLIC API ==================== */
 
-void get_daily_astro(double lat, double lon, time_t nowtime,
+void get_rise_and_set(double lat, double lon, time_t nowtime,
                      time_t *sunrise,
                      time_t *sunset,
                      double *moon_phase)
